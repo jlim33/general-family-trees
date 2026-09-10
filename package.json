@@ -1,0 +1,20 @@
+{
+  "name": "general-family-tree",
+  "version": "1.0.0",
+  "description": "Universal General Family Tree, Clan Genealogy & Global Interactive Map Web App",
+  "main": "index.html",
+  "scripts": {
+    "start": "npx serve ."
+  },
+  "keywords": [
+    "family-tree",
+    "genealogy",
+    "lineage",
+    "clan-directory",
+    "leaflet",
+    "onboarding",
+    "bilingual"
+  ],
+  "author": "jlim33",
+  "license": "MIT"
+}

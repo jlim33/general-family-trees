@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en" class="theme-royal">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>General Family Tree - Global Clan Genealogy & Interactive Map</title>
+  
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Google Fonts: Cinzel & Noto Serif KR -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Noto+Serif+KR:wght@600;700;900&family=Pretendard:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Leaflet CSS & JS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+  
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ==========================================================================
+       1. GLOBAL HEADER & TOOLBAR (ENGLISH FIRST)
+       ========================================================================== -->
+  <header class="site-header">
+    <div class="container header-inner">
+      <!-- Brand Logo -->
+      <a href="#" class="brand-section" onclick="window.app.switchMainTab('map'); return false;">
+        <div class="brand-seal" id="brand-clan-seal">F</div>
+        <div class="brand-meta">
+          <span class="brand-sub" data-i18n="brandSub">GLOBAL FAMILY TREE & GENEALOGY NETWORK</span>
+          <h1 class="brand-title" id="brand-clan-name">The Family Tree</h1>
+        </div>
+      </a>
+
+      <!-- Header Actions: Family Switcher, Themes, Lang, Music, Font, Actions -->
+      <div class="header-actions">
+        <!-- Switch Family Setup Wizard -->
+        <button type="button" class="btn btn-switch-family" onclick="window.wizard.openModal(window.app.dataManager.activeConfig)" title="Switch or configure family name, country & major cities">
+          <i class="fa-solid fa-wand-magic-sparkles"></i> <span data-i18n="btnSwitchFamily">✨ Switch Family (가문 변경)</span>
+        </button>
+
+        <!-- 3 Design Themes Toggle -->
+        <div class="theme-toggle-widget" role="group" aria-label="Theme Selection">
+          <button type="button" class="theme-btn active" id="theme-btn-royal" onclick="window.app.setTheme('royal')" title="Royal Gold Theme">
+            👑 <span data-i18n="themeClassic">Royal</span>
+          </button>
+          <button type="button" class="theme-btn" id="theme-btn-pastel" onclick="window.app.setTheme('pastel')" title="Modern Pastel Theme">
+            🌿 <span data-i18n="themePastel">Pastel</span>
+          </button>
+          <button type="button" class="theme-btn" id="theme-btn-dark" onclick="window.app.setTheme('dark')" title="Midnight Dark Theme">
+            🌙 <span data-i18n="themeDark">Dark</span>
+          </button>
+        </div>
+
+        <!-- Language Toggle: English First -->
+        <div class="lang-toggle-widget" role="group" aria-label="Language Selection">
+          <button type="button" class="lang-btn active" id="lang-btn-en" onclick="window.app.setLanguage('en')" title="View in English (Primary)">
+            🇺🇸 EN
+          </button>
+          <button type="button" class="lang-btn" id="lang-btn-ko" onclick="window.app.setLanguage('ko')" title="한국어로 보기">
+            🇰🇷 KO
+          </button>
+        </div>
+
+        <!-- Classical Music Lounge Mini Capsule -->
+        <div class="music-mini-capsule" id="music-mini-capsule" role="region" aria-label="Classical BGM Lounge">
+          <div class="music-mini-wave" id="music-mini-wave">
+            <span class="wave-bar wb-1"></span>
+            <span class="wave-bar wb-2"></span>
+            <span class="wave-bar wb-3"></span>
+          </div>
+
+          <button type="button" class="music-mini-btn" id="music-mini-prev-btn" title="Previous Track">
+            <i class="fa-solid fa-backward-step"></i>
+          </button>
+          <button type="button" class="music-mini-btn play-btn" id="music-mini-play-btn" title="Play Classical BGM">
+            <i class="fa-solid fa-play"></i>
+          </button>
+          <button type="button" class="music-mini-btn" id="music-mini-next-btn" title="Next Track">
+            <i class="fa-solid fa-forward-step"></i>
+          </button>
+
+          <div class="music-mini-track-info" id="music-mini-info-box" title="Click to open Music Lounge">
+            <div class="music-mini-title" id="music-mini-title">Canon in D</div>
+            <div class="music-mini-sub-row">
+              <span class="music-mini-artist" id="music-mini-artist">Pachelbel</span>
+              <span class="music-mini-status" id="music-mini-status">
+                <span class="music-idle-dot"></span>
+                <span data-i18n="musicIdleBadge">Classic Best 5</span>
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Senior Font Size Widget -->
+        <div class="font-size-widget" role="group" aria-label="Font Size">
+          <span class="font-size-label" style="font-size:0.75rem; color:var(--color-text-muted);"><i class="fa-solid fa-text-height"></i></span>
+          <button type="button" class="font-toggle-btn active" data-size="normal" onclick="window.app.setFontSize('normal')" title="Normal 100%" data-i18n="fontNormal">
+            100%
+          </button>
+          <button type="button" class="font-toggle-btn" data-size="large" onclick="window.app.setFontSize('large')" title="Large 125%" data-i18n="fontLarge">
+            125%
+          </button>
+          <button type="button" class="font-toggle-btn" data-size="xlarge" onclick="window.app.setFontSize('xlarge')" title="Extra Large 150%" data-i18n="fontXLarge">
+            150%
+          </button>
+        </div>
+
+        <!-- Add Relative Button -->
+        <button type="button" class="btn btn-gold" onclick="window.app.openAddModal()" title="Register a living relative">
+          <i class="fa-solid fa-user-plus"></i> <span data-i18n="btnAddRelative">+ Add Relative</span>
+        </button>
+
+        <!-- Export Buttons -->
+        <button type="button" class="btn btn-outline-light" onclick="window.app.exportCSV()" title="Export CSV spreadsheet">
+          <i class="fa-solid fa-file-excel"></i> <span data-i18n="btnExportExcel">CSV</span>
+        </button>
+        <button type="button" class="btn btn-outline-light" onclick="window.app.exportJSON()" title="Download JSON backup">
+          <i class="fa-solid fa-cloud-arrow-down"></i> <span data-i18n="btnBackup">Backup</span>
+        </button>
+        <label class="btn btn-outline-light" style="margin:0; cursor:pointer;" title="Restore from JSON backup">
+          <i class="fa-solid fa-cloud-arrow-up"></i> <span data-i18n="btnRestore">Restore</span>
+          <input type="file" id="import-json-file" accept=".json" style="display:none;">
+        </label>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==========================================================================
+       2. MAIN VIEW NAVIGATION TABS
+       ========================================================================== -->
+  <nav class="main-nav-section">
+    <div class="container main-nav-tabs">
+      <button type="button" class="nav-tab-btn active" id="tab-btn-map" onclick="window.app.switchMainTab('map')">
+        <i class="fa-solid fa-map-location-dot"></i> <span data-i18n="tabMap">Interactive Map & Major Hubs</span>
+      </button>
+      <button type="button" class="nav-tab-btn" id="tab-btn-tree" onclick="window.app.switchMainTab('tree')">
+        <i class="fa-solid fa-sitemap"></i> <span data-i18n="tabTree">Family Tree Hierarchy</span>
+      </button>
+      <button type="button" class="nav-tab-btn" id="tab-btn-directory" onclick="window.app.switchMainTab('directory')">
+        <i class="fa-solid fa-address-book"></i> <span data-i18n="tabDirectory">Relative Directory</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ==========================================================================
+       3. MAIN CONTENT CONTAINER
+       ========================================================================== -->
+  <main class="container" style="flex:1;">
+    
+    <!-- Hero Banner & Clan Identity -->
+    <section class="hero-banner">
+      <div class="hero-tag">
+        <i class="fa-solid fa-seedling"></i> <span data-i18n="brandSub">GLOBAL FAMILY TREE & GENEALOGY NETWORK</span>
+      </div>
+      <h2 class="hero-main-title" id="hero-main-title">The Family Tree & Global Lineage</h2>
+      <p class="hero-main-sub" id="hero-main-sub">
+        Connecting relatives across major cities and worldwide through interactive genealogy records and hierarchy diagrams.
+      </p>
+
+      <!-- 4 Stats Summary Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label" data-i18n="statTotalRelatives">Living Relatives</div>
+          <div class="stat-value" id="stat-total-relatives">0 <span class="stat-unit">people</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label" data-i18n="statTotalCountries">Residing Countries</div>
+          <div class="stat-value" id="stat-total-countries">0 <span class="stat-unit">countries</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label" data-i18n="statTotalCities">Cities</div>
+          <div class="stat-value" id="stat-total-cities">0 <span class="stat-unit">cities</span></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label" data-i18n="statMajorHubs">Major Hub Relatives</div>
+          <div class="stat-value" id="stat-major-hubs">0 <span class="stat-unit">people</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Major Hubs Spotlight Grid -->
+    <section class="hubs-section">
+      <div class="section-header">
+        <h3 class="section-title">
+          <i class="fa-solid fa-city" style="color:var(--color-gold);"></i>
+          <span data-i18n="spotlightTitle">Major Cities with Highest Relative Population</span>
+        </h3>
+        <button type="button" class="btn btn-outline-light" style="font-size:0.78rem;" onclick="window.app.filterByCity(null)" data-i18n="btnViewAll">
+          View All Cities
+        </button>
+      </div>
+      <div class="hubs-grid" id="hubs-grid">
+        <!-- Dynamic Major Hub Cards rendered here -->
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         VIEW 1: INTERACTIVE MAP & MAJOR HUBS
+         ========================================================================== -->
+    <section class="map-container-wrapper" id="clan-map-section">
+      <div class="map-toolbar">
+        <h3 class="section-title" style="font-size:1.05rem;">
+          <i class="fa-solid fa-earth-americas" style="color:var(--color-gold);"></i>
+          <span data-i18n="mapTitle">Global & Domestic Relative Location Map</span>
+        </h3>
+        <div style="display:flex; align-items:center; gap:0.4rem;">
+          <span style="font-size:0.75rem; color:var(--color-text-muted);" data-i18n="mapQuickLabel">Quick View:</span>
+          <button type="button" class="btn btn-outline-light" style="font-size:0.75rem; padding:0.25rem 0.6rem;" onclick="window.mapManager.flyToCountry()" data-i18n="mapPrimaryCountry">
+            Primary Country
+          </button>
+          <button type="button" class="btn btn-outline-light" style="font-size:0.75rem; padding:0.25rem 0.6rem;" onclick="window.mapManager.flyToWorld()" data-i18n="mapWorld">
+            World Overview
+          </button>
+        </div>
+      </div>
+      <div id="clan-leaflet-map"></div>
+    </section>
+
+    <!-- ==========================================================================
+         VIEW 2: FAMILY TREE HIERARCHY
+         ========================================================================== -->
+    <section class="tree-container-wrapper" id="clan-tree-section" style="display:none;">
+      <div class="tree-toolbar">
+        <h3 class="section-title" style="font-size:1.05rem;">
+          <i class="fa-solid fa-sitemap" style="color:var(--color-gold);"></i>
+          <span data-i18n="treeTitle">Interactive Family Tree Hierarchy</span>
+        </h3>
+        <div style="display:flex; align-items:center; gap:0.5rem;">
+          <div class="tree-search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" id="tree-search-input" data-i18n-placeholder="treeSearchPlaceholder" placeholder="Search in family tree...">
+          </div>
+          <button type="button" class="btn btn-outline-light" id="tree-zoom-in-btn" title="Zoom In">
+            <i class="fa-solid fa-plus"></i>
+          </button>
+          <button type="button" class="btn btn-outline-light" id="tree-zoom-out-btn" title="Zoom Out">
+            <i class="fa-solid fa-minus"></i>
+          </button>
+          <button type="button" class="btn btn-outline-light" id="tree-zoom-reset-btn" title="Reset Zoom">
+            <i class="fa-solid fa-arrows-rotate"></i>
+          </button>
+        </div>
+      </div>
+      <div class="tree-canvas" id="clan-tree-canvas">
+        <!-- Dynamic Tree Forest rendered here -->
+      </div>
+    </section>
+
+    <!-- ==========================================================================
+         VIEW 3: RELATIVE DIRECTORY
+         ========================================================================== -->
+    <section class="directory-section" id="relatives-section">
+      <div class="directory-toolbar">
+        <div class="search-box-large">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="search-input" data-i18n-placeholder="searchPlaceholder" placeholder="Search by name, city, job, email, or SNS...">
+        </div>
+
+        <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+          <select id="country-filter" class="form-input" style="padding:0.45rem 0.8rem; font-size:0.85rem;">
+            <option value="" data-i18n="countryFilterAll">All Countries</option>
+          </select>
+
+          <div class="theme-toggle-widget">
+            <button type="button" class="theme-btn active" id="view-mode-card" data-i18n="viewCard">
+              <i class="fa-solid fa-table-cells-large"></i> Cards
+            </button>
+            <button type="button" class="theme-btn" id="view-mode-table" data-i18n="viewTable">
+              <i class="fa-solid fa-list"></i> Table
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Results Count Bar -->
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <span id="directory-results-count" style="font-size:0.85rem; font-weight:700; color:var(--color-text-muted);">
+          Showing relatives...
+        </span>
+        <button type="button" class="btn btn-outline-light" style="font-size:0.75rem;" onclick="window.app.applyFamilyConfig(window.app.dataManager.activeConfig, true)" data-i18n="btnResetSample">
+          <i class="fa-solid fa-rotate-left"></i> Reset Sample Data
+        </button>
+      </div>
+
+      <!-- Card Grid View -->
+      <div class="directory-grid" id="relatives-card-view">
+        <!-- Cards rendered here -->
+      </div>
+
+      <!-- Table View -->
+      <div id="relatives-table-view" style="display:none; overflow-x:auto; background:var(--color-bg-card); border:1px solid var(--color-border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); margin-bottom:2.5rem;">
+        <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.85rem;">
+          <thead style="background:var(--color-bg-subtle); border-bottom:1px solid var(--color-border);">
+            <tr>
+              <th style="padding:0.75rem 1rem;" data-i18n="thName">Name</th>
+              <th style="padding:0.75rem 1rem;" data-i18n="thLocation">Location</th>
+              <th style="padding:0.75rem 1rem;" data-i18n="thContact">Contact</th>
+              <th style="padding:0.75rem 1rem;" data-i18n="thWork">Occupation</th>
+              <th style="padding:0.75rem 1rem;" data-i18n="thParent">Parent</th>
+              <th style="padding:0.75rem 1rem;" data-i18n="thBirthday">Birthday</th>
+              <th style="padding:0.75rem 1rem;" data-i18n="thActions">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="relatives-table-tbody">
+            <!-- Table rows rendered here -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Empty State Notice -->
+      <div id="relatives-empty-state" style="display:none; text-align:center; padding:3rem 1.5rem; background:var(--color-bg-card); border:1px dashed var(--color-border); border-radius:var(--radius-lg); margin-bottom:2.5rem;">
+        <i class="fa-solid fa-folder-open" style="font-size:2.5rem; color:var(--color-gold); margin-bottom:0.8rem;"></i>
+        <h4 style="font-size:1.15rem; font-weight:800; margin-bottom:0.3rem;" data-i18n="emptyTitle">No relative records found matching criteria.</h4>
+        <p style="font-size:0.85rem; color:var(--color-text-muted);" data-i18n="emptyDesc">Try adjusting your search keywords or clearing active filters.</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==========================================================================
+       MODAL 1: 3-STEP ONBOARDING WIZARD (FAMILY NAME, COUNTRY, MAJOR CITIES)
+       ========================================================================== -->
+  <div class="modal-backdrop hidden" id="onboarding-wizard-modal" role="dialog" aria-modal="true">
+    <div class="wizard-modal-window">
+      <!-- Stepper Header -->
+      <div class="wizard-stepper-header">
+        <div class="wizard-step-tab active" data-step="1">
+          <span class="step-num-badge">1</span>
+          <span data-i18n="wizardStep1Tab">1. Family Name (성씨)</span>
+        </div>
+        <div class="wizard-step-tab" data-step="2">
+          <span class="step-num-badge">2</span>
+          <span data-i18n="wizardStep2Tab">2. Country (국가)</span>
+        </div>
+        <div class="wizard-step-tab" data-step="3">
+          <span class="step-num-badge">3</span>
+          <span data-i18n="wizardStep3Tab">3. Major Cities (대도시)</span>
+        </div>
+      </div>
+
+      <!-- Wizard Body -->
+      <div class="wizard-body">
+        <!-- STEP 1: FAMILY NAME -->
+        <div class="wizard-step-panel active" data-step="1">
+          <h3 class="wizard-heading" data-i18n="step1Heading">Step 1: What is your family or clan name?</h3>
+          <p class="wizard-desc" data-i18n="step1Desc">Enter your surname, family clan, or lineage title.</p>
+
+          <label class="form-label" data-i18n="familyNameLabel">Family Name / Clan (성씨/가문명) *</label>
+          <input type="text" id="wizard-family-name-input" class="wizard-input-large" data-i18n-placeholder="familyNamePlaceholder" placeholder="e.g. Smith, Kim (김해 김씨), Garcia, Lee..." autofocus>
+
+          <!-- Live Preview Box -->
+          <div class="wizard-live-preview">
+            <div class="preview-badge" data-i18n="previewBadge">Live Preview (실시간 미리보기):</div>
+            <div class="preview-title" id="wizard-preview-title">The Smith Family Tree & Global Lineage</div>
+          </div>
+
+          <!-- Popular Suggestions -->
+          <div style="margin-top:1.2rem;">
+            <label class="form-label" data-i18n="popularSuggestionsLabel">Popular Surnames (인기 성씨 추천):</label>
+            <div class="wizard-chips-grid" id="wizard-popular-chips">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- STEP 2: COUNTRY SELECTION -->
+        <div class="wizard-step-panel hidden" data-step="2">
+          <h3 class="wizard-heading" data-i18n="step2Heading">Step 2: Select your primary country</h3>
+          <p class="wizard-desc" data-i18n="step2Desc">Choose the country where most of your relatives currently reside.</p>
+
+          <div style="margin-bottom:0.8rem; position:relative;">
+            <input type="text" id="wizard-country-search" class="form-input" placeholder="Search countries (국가 검색)..." style="width:100%; padding-left:2.2rem;">
+            <i class="fa-solid fa-magnifying-glass" style="position:absolute; left:0.8rem; top:50%; transform:translateY(-50%); color:var(--color-text-muted);"></i>
+          </div>
+
+          <div class="country-cards-grid" id="wizard-country-list">
+            <!-- Countries rendered via JS -->
+          </div>
+        </div>
+
+        <!-- STEP 3: CITY WITH MAJOR CITIES ! -->
+        <div class="wizard-step-panel hidden" data-step="3">
+          <h3 class="wizard-heading" data-i18n="step3Heading">Step 3: Select cities with major cities!</h3>
+          <p class="wizard-desc" data-i18n="step3Desc">Select major cities where your family members live, or add custom cities.</p>
+
+          <div style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.8rem;">
+            <span class="hero-tag" id="wizard-cities-country-title" style="margin:0;">🇺🇸 United States</span>
+            <span style="font-size:0.8rem; color:var(--color-text-muted);">(Click chips to toggle selection)</span>
+          </div>
+
+          <label class="form-label" data-i18n="majorCitiesLabel">Major Metropolitan Hubs (추천 핵심 대도시):</label>
+          <div class="city-chips-container" id="wizard-major-cities-chips">
+            <!-- Major city chips rendered via JS -->
+          </div>
+
+          <!-- Selected Cities Box -->
+          <div class="selected-cities-box">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <label class="form-label" style="margin:0;" data-i18n="selectedCitiesLabel">Selected Family Hubs (선택된 거점 도시):</label>
+              <span style="font-size:0.72rem; color:var(--color-text-muted);">★ = Primary Headquarters</span>
+            </div>
+            <div class="selected-cities-list" id="wizard-selected-cities-list">
+              <!-- Selected city badges rendered via JS -->
+            </div>
+
+            <!-- Custom City Addition -->
+            <div class="custom-city-row">
+              <input type="text" id="wizard-custom-city-input" data-i18n-placeholder="addCustomCityPlaceholder" placeholder="Enter city name (도시 이름 입력)...">
+              <button type="button" class="btn btn-outline-light" id="wizard-add-city-btn" data-i18n="btnAddCity">
+                + Add City
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wizard Footer -->
+      <div class="wizard-footer">
+        <button type="button" class="btn btn-outline-light" id="wizard-btn-back" style="visibility:hidden;" data-i18n="btnBack">
+          ← Back
+        </button>
+        <div style="display:flex; gap:0.6rem;">
+          <button type="button" class="btn btn-secondary" id="wizard-btn-close" data-i18n="btnCancel">
+            Cancel
+          </button>
+          <button type="button" class="btn btn-gold" id="wizard-btn-next" data-i18n="btnNext">
+            Next →
+          </button>
+          <button type="button" class="btn btn-gold hidden" id="wizard-btn-launch" data-i18n="btnLaunch">
+            🚀 Launch Family Tree
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 2: RELATIVE FORM (ADD / EDIT)
+       ========================================================================== -->
+  <div class="modal-backdrop hidden" id="relative-form-modal" role="dialog" aria-modal="true">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title" id="relative-form-modal-title" data-i18n="modalAddTitle">Add Living Relative</h3>
+        <button type="button" class="modal-close-btn" onclick="window.app.closeModal('relative-form-modal')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form id="relative-form" onsubmit="event.preventDefault(); window.app.saveRelative();">
+          
+          <!-- Photo Upload & Preview -->
+          <div style="display:flex; align-items:center; gap:1.2rem; margin-bottom:1.4rem; padding:1rem; background:var(--color-bg-subtle); border-radius:var(--radius-md);">
+            <div id="photo-preview-avatar" style="width:64px; height:64px; border-radius:50%; border:2px solid var(--color-border-gold); background:var(--color-bg-card); display:flex; align-items:center; justify-content:center; overflow:hidden; font-size:1.5rem; color:var(--color-text-muted); flex-shrink:0;">
+              <i class="fa-solid fa-user"></i>
+            </div>
+            <div style="flex:1;">
+              <label class="form-label" data-i18n="lblPhoto">Profile Photo (프로필 사진 - 선택)</label>
+              <div style="display:flex; gap:0.5rem; margin:0.3rem 0;">
+                <label class="btn btn-outline-light" style="font-size:0.78rem; cursor:pointer;">
+                  <i class="fa-solid fa-upload"></i> <span data-i18n="photoUploadBtn">Choose File</span>
+                  <input type="file" id="relative-photo-file" accept="image/*" style="display:none;">
+                </label>
+                <input type="text" id="form-photo-url" class="form-input" style="flex:1; font-size:0.8rem;" data-i18n-placeholder="photoUrlPlaceholder" placeholder="Or paste image URL...">
+              </div>
+              <span style="font-size:0.7rem; color:var(--color-text-muted);" data-i18n="photoHint">Optional. Supports local JPG/PNG upload or web image URL.</span>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" data-i18n="lblName">Full Name *</label>
+              <input type="text" id="form-name" class="form-input" required placeholder="e.g. Robert Smith">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" data-i18n="lblEmail">Email Address *</label>
+              <input type="email" id="form-email" class="form-input" required placeholder="name@domain.com">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" data-i18n="lblCountry">Country</label>
+              <input type="text" id="form-country" class="form-input" placeholder="e.g. United States">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" data-i18n="lblCity">City / Town</label>
+              <input type="text" id="form-city" class="form-input" placeholder="e.g. San Francisco">
+            </div>
+
+            <div class="form-group full-span">
+              <label class="form-label">
+                <span data-i18n="lblParent">Parent Full Name (부모 성명 - 가계도 연결)</span>
+                <span style="font-size:0.72rem; color:var(--color-gold); font-weight:normal;" data-i18n="parentHint">※ Crucial for Family Tree Hierarchy connection</span>
+              </label>
+              <input type="text" id="form-parent" class="form-input" list="parent-name-suggestions" placeholder="Enter parent's full name (leave blank for ancestral generation)...">
+              <datalist id="parent-name-suggestions"></datalist>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" data-i18n="lblPhone">Phone Number</label>
+              <input type="tel" id="form-phone" class="form-input" placeholder="+1 (555) 000-0000">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" data-i18n="lblBirthday">Birthday</label>
+              <input type="date" id="form-birthday" class="form-input">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" data-i18n="lblWorkplace">Workplace / Company</label>
+              <input type="text" id="form-workplace" class="form-input" placeholder="Company or Organization">
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" data-i18n="lblJobTitle">Job Title / Role</label>
+              <input type="text" id="form-jobtitle" class="form-input" placeholder="Job Title / Role">
+            </div>
+
+            <div class="form-group full-span">
+              <label class="form-label" data-i18n="lblAddress">Home Address</label>
+              <input type="text" id="form-address" class="form-input" placeholder="Street Address, City, State, ZIP">
+            </div>
+
+            <div class="form-group full-span">
+              <label class="form-label" data-i18n="lblWorkAddress">Work Address</label>
+              <input type="text" id="form-workaddress" class="form-input" placeholder="Office Address">
+            </div>
+
+            <!-- Social Media Grid -->
+            <div class="form-group full-span" style="margin-top:0.6rem; padding-top:0.8rem; border-top:1px dashed var(--color-border);">
+              <label class="form-label" style="color:var(--color-gold);" data-i18n="lblSnsTitle">Social Media & Profiles (SNS - Optional)</label>
+              <div class="form-grid" style="margin-top:0.5rem;">
+                <input type="text" id="form-sns-instagram" class="form-input" data-i18n-placeholder="snsInstagram" placeholder="Instagram (@username or URL)">
+                <input type="text" id="form-sns-linkedin" class="form-input" data-i18n-placeholder="snsLinkedIn" placeholder="LinkedIn (Profile URL)">
+                <input type="text" id="form-sns-facebook" class="form-input" data-i18n-placeholder="snsFacebook" placeholder="Facebook (Profile URL)">
+                <input type="text" id="form-sns-youtube" class="form-input" data-i18n-placeholder="snsYouTube" placeholder="YouTube (Channel URL)">
+                <input type="text" id="form-sns-twitter" class="form-input" data-i18n-placeholder="snsTwitter" placeholder="X / Twitter (@username or URL)">
+                <input type="text" id="form-sns-website" class="form-input" data-i18n-placeholder="snsWebsite" placeholder="Personal Website / Blog (URL)">
+              </div>
+            </div>
+
+            <div class="form-group full-span">
+              <label class="form-label" data-i18n="lblNotes">Heritage Notes & Remarks</label>
+              <textarea id="form-notes" class="form-textarea" rows="2" placeholder="Family remarks, achievements, generational notes..."></textarea>
+            </div>
+          </div>
+
+          <div class="modal-footer" style="margin-top:1.4rem; padding:1rem 0 0 0;">
+            <button type="button" class="btn btn-outline-light" onclick="window.app.closeModal('relative-form-modal')" data-i18n="btnCancel">Cancel</button>
+            <button type="submit" class="btn btn-gold" data-i18n="btnSave">Save Profile</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 3: RELATIVE DETAILED PROFILE
+       ========================================================================== -->
+  <div class="modal-backdrop hidden" id="relative-detail-modal" role="dialog" aria-modal="true">
+    <div class="modal-window">
+      <div class="modal-header">
+        <h3 class="modal-title" data-i18n="detailTitle">Relative Detailed Profile</h3>
+        <button type="button" class="modal-close-btn" onclick="window.app.closeModal('relative-detail-modal')">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div style="display:flex; align-items:center; gap:1.2rem; margin-bottom:1.5rem; padding:1rem; background:var(--color-bg-subtle); border-radius:var(--radius-md);">
+          <div id="detail-modal-avatar" style="width:72px; height:72px; border-radius:50%; border:2px solid var(--color-border-gold); overflow:hidden; background:var(--color-bg-card); display:flex; align-items:center; justify-content:center; font-size:1.8rem; font-weight:900; color:var(--color-primary); flex-shrink:0;">
+          </div>
+          <div>
+            <h4 id="detail-modal-name" style="font-size:1.35rem; font-weight:800;">-</h4>
+            <div id="detail-modal-location" style="font-size:0.85rem; color:var(--color-text-muted);">-</div>
+          </div>
+        </div>
+
+        <div class="form-grid" style="font-size:0.88rem;">
+          <div class="form-group">
+            <span class="form-label" data-i18n="detailEmailLabel">Email Address</span>
+            <div id="detail-email" style="font-weight:600; color:var(--color-gold);">-</div>
+          </div>
+          <div class="form-group">
+            <span class="form-label" data-i18n="detailPhoneLabel">Phone Number</span>
+            <div id="detail-phone" style="font-weight:600;">-</div>
+          </div>
+          <div class="form-group">
+            <span class="form-label" data-i18n="detailParentLabel">Parent (Family Tree)</span>
+            <div id="detail-parent" style="font-weight:600;">-</div>
+          </div>
+          <div class="form-group">
+            <span class="form-label" data-i18n="detailBirthdayLabel">Birthday</span>
+            <div id="detail-birthday" style="font-weight:600;">-</div>
+          </div>
+          <div class="form-group full-span">
+            <span class="form-label" data-i18n="detailJobLabel">Occupation & Role</span>
+            <div id="detail-workplace" style="font-weight:600;">-</div>
+          </div>
+          <div class="form-group full-span">
+            <span class="form-label" data-i18n="detailAddressLabel">Home Address</span>
+            <div id="detail-address" style="font-weight:500;">-</div>
+          </div>
+          <div class="form-group full-span">
+            <span class="form-label" data-i18n="detailWorkAddressLabel">Work Address</span>
+            <div id="detail-workaddress" style="font-weight:500;">-</div>
+          </div>
+
+          <!-- SNS Section -->
+          <div class="form-group full-span" id="detail-sns-section" style="display:none; padding-top:0.8rem; border-top:1px dashed var(--color-border);">
+            <span class="form-label" style="color:var(--color-gold);" data-i18n="detailSnsLabel">Social Media Profiles</span>
+            <div id="detail-sns-container" style="display:flex; flex-wrap:wrap; gap:0.5rem; margin-top:0.4rem;"></div>
+          </div>
+
+          <div class="form-group full-span" style="background:var(--color-bg-subtle); padding:0.8rem; border-radius:var(--radius-md);">
+            <span class="form-label" data-i18n="detailNotesLabel">Notes & Remarks</span>
+            <div id="detail-notes" style="font-weight:500;">-</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-gold" id="detail-fly-map-btn" data-i18n="btnFlyMap">
+          <i class="fa-solid fa-location-dot"></i> View on Map
+        </button>
+        <button type="button" class="btn btn-outline-light" onclick="window.app.closeModal('relative-detail-modal')" data-i18n="btnClose">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       MODAL 4: CLASSICAL MUSIC LOUNGE (TURNTABLE & 5 MASTERPIECES)
+       ========================================================================== -->
+  <div class="modal-backdrop hidden" id="music-lounge-modal" role="dialog" aria-modal="true">
+    <div class="modal-window" style="max-width:620px;">
+      <div class="modal-header">
+        <div>
+          <div class="hero-tag" style="margin-bottom:0.2rem;" data-i18n="musicLoungeBadge">Classic Best 5</div>
+          <h3 class="modal-title" data-i18n="musicLoungeTitle">🎻 Classical Music Lounge</h3>
+        </div>
+        <button type="button" class="modal-close-btn" id="music-modal-close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Turntable Card -->
+        <div style="display:flex; align-items:center; gap:1.4rem; padding:1.2rem; background:var(--color-bg-subtle); border-radius:var(--radius-lg); margin-bottom:1.4rem;">
+          <div id="music-modal-album-art" style="width:84px; height:84px; border-radius:50%; background:radial-gradient(circle, #27272a 0%, #000 100%); border:3px solid var(--color-gold); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+            <div style="width:28px; height:28px; border-radius:50%; background:var(--gradient-gold); display:flex; align-items:center; justify-content:center; color:#1e1b4b; font-size:0.85rem;">
+              <i class="fa-solid fa-compact-disc"></i>
+            </div>
+          </div>
+
+          <div style="flex:1; min-width:0;">
+            <span id="music-modal-track-badge" style="font-size:0.7rem; font-weight:800; color:var(--color-gold);">Baroque Masterpiece 🎻</span>
+            <h4 id="music-modal-track-title" style="font-size:1.15rem; font-weight:800; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin:0.1rem 0;">Pachelbel - Canon in D Major</h4>
+            <div id="music-modal-track-artist" style="font-size:0.8rem; color:var(--color-text-muted); margin-bottom:0.6rem;">Johann Pachelbel</div>
+
+            <!-- Progress Scrubber -->
+            <div id="music-progress-container" style="width:100%; height:6px; background:var(--color-border); border-radius:9999px; cursor:pointer; position:relative; overflow:hidden;">
+              <div id="music-progress-bar" style="height:100%; width:0%; background:var(--gradient-gold);"></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; font-size:0.7rem; font-family:monospace; color:var(--color-text-muted); margin-top:0.25rem;">
+              <span id="music-time-current">0:00</span>
+              <span id="music-time-total">0:00</span>
+            </div>
+
+            <!-- Player Controls -->
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-top:0.8rem;">
+              <button type="button" class="btn btn-outline-light" id="music-modal-shuffle-btn" style="border-radius:50%; width:2.2rem; height:2.2rem; padding:0;" title="Shuffle">
+                <i class="fa-solid fa-shuffle"></i>
+              </button>
+              <button type="button" class="btn btn-outline-light" id="music-modal-prev-btn" style="border-radius:50%; width:2.2rem; height:2.2rem; padding:0;" title="Previous">
+                <i class="fa-solid fa-backward-step"></i>
+              </button>
+              <button type="button" class="btn btn-gold" id="music-modal-play-btn" style="border-radius:50%; width:2.8rem; height:2.8rem; padding:0; font-size:1.1rem;" title="Play/Pause">
+                <i class="fa-solid fa-play"></i>
+              </button>
+              <button type="button" class="btn btn-outline-light" id="music-modal-next-btn" style="border-radius:50%; width:2.2rem; height:2.2rem; padding:0;" title="Next">
+                <i class="fa-solid fa-forward-step"></i>
+              </button>
+              <button type="button" class="btn btn-outline-light active" id="music-modal-auto-btn" style="border-radius:50%; width:2.2rem; height:2.2rem; padding:0;" title="Autoplay Next">
+                <i class="fa-solid fa-repeat"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Playlist -->
+        <div>
+          <h4 style="font-size:0.95rem; font-weight:800; margin-bottom:0.6rem;" data-i18n="musicPlaylistTitle">Classic Best 5 Track List</h4>
+          <div id="music-playlist-list" style="display:flex; flex-direction:column; gap:0.5rem;">
+            <!-- Playlist items rendered via JS -->
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="justify-content:space-between;">
+        <span style="font-size:0.75rem; color:var(--color-text-muted);" data-i18n="musicFooterTip">Background music continues seamlessly while exploring family records.</span>
+        <button type="button" class="btn btn-outline-light" onclick="window.musicLounge.toggleModal(false)" data-i18n="btnClose">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <div>
+        <h4 style="font-weight:800; font-size:1rem; margin-bottom:0.2rem;">Universal General Family Tree Network</h4>
+        <p style="font-size:0.8rem;">Dedicated to uniting relatives worldwide, honoring ancestral heritage, and connecting the generations.</p>
+      </div>
+      <div>
+        <button type="button" class="btn btn-outline-light" style="font-size:0.8rem;" onclick="window.scrollTo({top:0, behavior:'smooth'})" data-i18n="btnTop">
+          <i class="fa-solid fa-arrow-up"></i> Top
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <!-- Scripts in dependency order -->
+  <script src="js/city-database.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/onboarding.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/tree.js"></script>
+  <script src="js/music-player.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

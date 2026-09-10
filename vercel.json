@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "name": "general-family-tree",
+  "routes": [
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ]
+}
