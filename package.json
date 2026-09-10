@@ -4,6 +4,8 @@
   "description": "Universal General Family Tree, Clan Genealogy & Global Interactive Map Web App",
   "main": "index.html",
   "scripts": {
+    "build": "echo 'Static build complete'",
+    "vercel-build": "echo 'Static build complete'",
     "start": "node local-server.js"
   },
   "keywords": [
