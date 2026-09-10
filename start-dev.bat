@@ -14,13 +14,13 @@ echo.
 start http://localhost:3000
 
 if exist "C:\Program Files\nodejs\node.exe" (
-    "C:\Program Files\nodejs\node.exe" server.js
+    "C:\Program Files\nodejs\node.exe" local-server.js
 ) else (
-    node server.js
+    node local-server.js
 )
 
 if %ERRORLEVEL% NEQ 0 (
     echo.
-    echo [Error] Failed to launch server.js. Please check if Node.js is installed.
+    echo [Error] Failed to launch local-server.js. Please check if Node.js is installed.
 )
 pause

@@ -22,4 +22,4 @@ Write-Host "Starting local web server on port 3000..." -ForegroundColor Green
 Write-Host "Browser will open automatically at http://localhost:3000" -ForegroundColor Yellow
 Write-Host "Press Ctrl+C in this window to stop the server.`n" -ForegroundColor Gray
 
-& $nodePath server.js
+& $nodePath local-server.js
