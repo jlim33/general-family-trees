@@ -680,11 +680,8 @@ class GeneralFamilyApp {
     const email = document.getElementById("form-email").value.trim();
 
     if (!name) {
-      alert("Name is required.");
-      return;
-    }
-    if (!email) {
-      alert("Email is required.");
+      const isEn = this.currentLang === "en";
+      alert(isEn ? "Name is required." : "성명(이름)을 입력해주세요.");
       return;
     }
 
